@@ -7,6 +7,6 @@ engine = create_engine(
 
 
 def initialize_db():
-    from archivesorter.database.models import FileClassification as FileClassification
+    from archivesorter.database.models import FileInfo as FileInfo
 
     SQLModel.metadata.create_all(engine)
