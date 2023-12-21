@@ -10,8 +10,9 @@ app = typer.Typer()
 
 def _print_file_info(fi: FileInfo):
     img_data = '(IM)' if fi.photo_created else ''
+    cat_data = 'N/A' if not fi.evaluated_category else fi.evaluated_category
     print(
-        f'ID: {fi.id:<6} :: [magenta]...{fi.source_path[-80:]:<83}[/magenta] [yellow]{img_data:<4}[/yellow]'
+        f'ID: {fi.id:<6} :: [magenta]...{fi.source_path[-80:]:<83}[/magenta] category={cat_data:<20}  [yellow]{img_data:<4}[/yellow]'
     )
 
 

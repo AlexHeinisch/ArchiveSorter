@@ -1,6 +1,8 @@
 from typing import Annotated
-from sqlmodel import Session
+from sqlmodel import Session, func, select
 import typer
+from archivesorter.categorizer import evaluate_category
+from archivesorter.database.models import FileInfo
 from archivesorter.file_manager import (
     extract_file_info_by_path,
     extract_image_creation_date_from_metadata_if_image,
@@ -34,6 +36,9 @@ def load(
             file_info.photo_created = (
                 extract_image_creation_date_from_metadata_if_image(file)
             )
+            file_info.evaluated_datetime = (
+                file_info.photo_created or file_info.file_created
+            )
             session.add(file_info)
             session.commit()
 
@@ -46,7 +51,15 @@ def clear_database():
 
 @app.command()
 def categorize():
-    print('Start categorizing...')
+    with Session(engine) as session:
+        for fi in track(
+            session.exec(select(FileInfo)),
+            total=session.exec(select(func.count(FileInfo.id))).one(),
+        ):
+            category = evaluate_category(fi)
+            fi.evaluated_category = category
+            session.add(fi)
+        session.commit()
 
 
 @app.command()
