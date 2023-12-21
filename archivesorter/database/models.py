@@ -3,7 +3,7 @@ from sqlmodel import Field, SQLModel
 from datetime import datetime
 
 
-class FileClassification(SQLModel, table=True):
+class FileInfo(SQLModel, table=True):
     # database id
     id: Optional[int] = Field(default=None, primary_key=True)
 
