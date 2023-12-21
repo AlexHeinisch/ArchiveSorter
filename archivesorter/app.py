@@ -9,9 +9,11 @@ from archivesorter.file_manager import (
 from config import settings
 from database.db import clear_db, initialize_db, engine
 from rich.progress import track
+from archivesorter.info_app import app as info_app
 
 
 app = typer.Typer(name=settings.app_name)
+app.add_typer(info_app, name='info')
 initialize_db()
 
 
@@ -38,11 +40,6 @@ def load(
 @app.command()
 def categorize():
     print('Start categorizing...')
-
-
-@app.command()
-def info():
-    print('Printing info...')
 
 
 @app.command()
