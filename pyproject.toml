@@ -13,6 +13,7 @@ pytest = "^7.4.3"
 sqlmodel = "^0.0.14"
 pydantic-settings = "^2.1.0"
 ruff = "^0.1.8"
+pillow = "^10.1.0"
 
 [tool.ruff.format]
 # Use single quotes rather than double quotes.
