@@ -5,7 +5,7 @@ class Config(BaseSettings):
     app_name: str = 'PhotoArchiveSorter'
 
     database_connection_string: str = 'sqlite:///database.db'
-    database_echo: bool = True
+    database_echo: bool = False
 
 
 settings = Config()
