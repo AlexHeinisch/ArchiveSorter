@@ -9,11 +9,11 @@ from archivesorter.file_manager import (
 from config import settings
 from database.db import clear_db, initialize_db, engine
 from rich.progress import track
-from archivesorter.info_app import app as info_app
+from archivesorter.manager_app import app as manager_app
 
 
 app = typer.Typer(name=settings.app_name)
-app.add_typer(info_app, name='info')
+app.add_typer(manager_app, name='manage')
 initialize_db()
 
 

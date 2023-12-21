@@ -1,5 +1,5 @@
 from rich import print
-from typing import Annotated, Optional
+from typing import Annotated, List, Optional
 from sqlmodel import Session, func, select
 import typer
 from archivesorter.database.db import engine
@@ -84,3 +84,16 @@ def show_duplicates(
                 _print_file_info(fi)
             print('')
             idx += 1
+
+
+@app.command()
+def delete(ids: Annotated[List[int], typer.Argument()]):
+    with Session(engine) as session:
+        for id in ids:
+            entity = session.get(FileInfo, id)
+            if entity:
+                session.delete(entity)
+                print(f'[green]File with id {id} deleted![/green]')
+            else:
+                print(f'[red]No file with id {id} found![/red]')
+        session.commit()
