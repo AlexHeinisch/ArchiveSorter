@@ -1,9 +1,18 @@
+from rich import print
+from typing import Annotated, Optional
 from sqlmodel import Session, func, select
 import typer
 from archivesorter.database.db import engine
 from archivesorter.database.models import FileInfo
 
 app = typer.Typer()
+
+
+def _print_file_info(fi: FileInfo):
+    img_data = '(IM)' if fi.photo_created else ''
+    print(
+        f'ID: {fi.id:<6} :: [magenta]...{fi.source_path[-80:]:<83}[/magenta] [yellow]{img_data:<4}[/yellow]'
+    )
 
 
 @app.command()
@@ -35,3 +44,43 @@ def count_duplicates():
         )
         cnt = session.exec(query).one()
     print('Number of duplicate files: ', cnt)
+
+
+@app.command()
+def show(
+    limit: Annotated[Optional[int], typer.Option()] = None,
+    offset: Annotated[Optional[int], typer.Option()] = None,
+):
+    with Session(engine) as session:
+        query = select(FileInfo)
+        if limit:
+            query = query.limit(limit)
+        if offset:
+            query = query.offset(offset)
+        for fi in session.exec(query).all():
+            _print_file_info(fi)
+
+
+@app.command()
+def show_duplicates(
+    limit: Annotated[Optional[int], typer.Option()] = None,
+    offset: Annotated[Optional[int], typer.Option()] = None,
+):
+    with Session(engine) as session:
+        query = (
+            select(FileInfo.file_hash, func.count(FileInfo.id).label('hash_count'))
+            .group_by(FileInfo.file_hash)
+            .having(func.count(FileInfo.id) > 1)
+            .order_by(FileInfo.file_hash)
+        )
+        if limit:
+            query = query.limit(limit)
+        if offset:
+            query = query.offset(offset)
+        idx = offset if offset else 1
+        for hash, occurences in session.exec(query).all():
+            print(f'[[{idx}]] {occurences} files with hash "{hash}":')
+            for fi in session.exec(select(FileInfo).where(FileInfo.file_hash == hash)):
+                _print_file_info(fi)
+            print('')
+            idx += 1
