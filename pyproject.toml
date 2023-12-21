@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["AlexHeinisch <6390741+AlexHeinisch@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "archivesorter", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
