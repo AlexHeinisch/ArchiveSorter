@@ -9,6 +9,7 @@ from archivesorter.file_manager import (
 from config import settings
 from database.db import clear_db, initialize_db, engine
 from rich.progress import track
+from rich import print
 from archivesorter.manager_app import app as manager_app
 
 
@@ -23,10 +24,10 @@ def load(
     clear: Annotated[bool, typer.Option()] = False,
 ):
     if clear:
-        print('Clearing database...')
+        print('[gray]Clearing database...[/gray]')
         clear_db()
 
-    print('Start loading files...')
+    print('[gray]Start loading files...[/gray]')
     with Session(engine) as session:
         for file in track(list(get_all_file_paths_by_root_folder(input_folder_path))):
             file_info = extract_file_info_by_path(file)
@@ -35,6 +36,12 @@ def load(
             )
             session.add(file_info)
             session.commit()
+
+
+@app.command()
+def clear_database():
+    print('[gray]Clearing database...[/gray]')
+    clear_db()
 
 
 @app.command()
