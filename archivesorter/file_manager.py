@@ -1,4 +1,5 @@
 from datetime import datetime
+from PIL import Image
 from typing import Generator
 import os
 from archivesorter.database.models import FileInfo
@@ -39,5 +40,40 @@ def hash_file_content(file_path: str) -> str:
     return sha256_hash.hexdigest()
 
 
-def extract_image_creation_date_from_metadata(file_path: str) -> datetime:
-    ...
+image_extensions = [
+    '.jpg',
+    '.jpeg',
+    '.jpe',
+    '.jfif',
+    '.tiff',
+    '.tif',
+    '.raw',
+    '.nef',
+    '.cr2',
+    '.png',
+    '.gif',
+    '.bmp',
+]
+
+
+def extract_image_creation_date_from_metadata_if_image(
+    file_path: str,
+) -> datetime | None:
+    if not any([file_path.endswith(ext) for ext in image_extensions]):
+        return None
+    try:
+        # Open the image file
+        with Image.open(file_path) as img:
+            # Get the EXIF data
+            exif_data = img.getexif()
+
+            # If the image has EXIF data
+            if exif_data is not None:
+                date = exif_data.get(36867) or exif_data.get(306)
+                return datetime.strptime(date, '%Y:%m:%d %H:%M:%S') if date else None
+            else:
+                print('No EXIF data found in the image.')
+    except FileNotFoundError:
+        print(f'File not found: {file_path}')
+    except Exception as e:
+        print(f'Error extracting EXIF data: {e}')

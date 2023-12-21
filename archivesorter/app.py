@@ -3,6 +3,7 @@ from sqlmodel import Session
 import typer
 from archivesorter.file_manager import (
     extract_file_info_by_path,
+    extract_image_creation_date_from_metadata_if_image,
     get_all_file_paths_by_root_folder,
 )
 from config import settings
@@ -27,6 +28,9 @@ def load(
     with Session(engine) as session:
         for file in track(list(get_all_file_paths_by_root_folder(input_folder_path))):
             file_info = extract_file_info_by_path(file)
+            file_info.photo_created = (
+                extract_image_creation_date_from_metadata_if_image(file)
+            )
             session.add(file_info)
             session.commit()
 
