@@ -1,20 +1,28 @@
+from typing import Annotated
 from sqlmodel import Session
-from typer import Typer
+import typer
 from archivesorter.file_manager import (
     extract_file_info_by_path,
     get_all_file_paths_by_root_folder,
 )
 from config import settings
-from database.db import initialize_db, engine
+from database.db import clear_db, initialize_db, engine
 from rich.progress import track
 
 
-app = Typer(name=settings.app_name)
+app = typer.Typer(name=settings.app_name)
 initialize_db()
 
 
 @app.command()
-def load(input_folder_path: str):
+def load(
+    input_folder_path: Annotated[str, typer.Argument()],
+    clear: Annotated[bool, typer.Option()] = False,
+):
+    if clear:
+        print('Clearing database...')
+        clear_db()
+
     print('Start loading files...')
     with Session(engine) as session:
         for file in track(list(get_all_file_paths_by_root_folder(input_folder_path))):

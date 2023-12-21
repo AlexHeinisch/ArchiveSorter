@@ -6,6 +6,11 @@ engine = create_engine(
 )
 
 
+def clear_db():
+    SQLModel.metadata.drop_all(engine)
+    initialize_db()
+
+
 def initialize_db():
     from archivesorter.database.models import FileInfo as FileInfo
 
